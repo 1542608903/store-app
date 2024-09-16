@@ -7,3 +7,9 @@ defineOptions({
   name: 'App'
 });
 </script>
+
+<style>
+.q-fab {
+  margin-bottom: 20px;
+}
+</style>

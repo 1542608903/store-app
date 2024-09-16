@@ -1,5 +1,11 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
+import { getToken, removeToken } from 'src/utils/saveToken';
+import { useUserStore } from 'src/stores/user-store';
+import { useAddressStore } from 'src/stores/address-store';
+import { useCartStore } from 'src/stores/cart-store';
+
+import { Notify } from 'quasar';
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -8,14 +14,47 @@ declare module 'vue' {
   }
 }
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' });
+const userStore = useUserStore();
+const addressStore = useAddressStore();
+const cartStore = useCartStore();
 
+const api = axios.create({
+  baseURL: '/api'
+});
+
+// 响应拦截器
+api.interceptors.response.use(function (response) {
+
+  return response.data;
+}, function (error) {
+
+  if (error.response.data.code === '10101') {
+    Notify.create({
+      message: '登录过期, 请重新登录',
+      color: 'red',
+      position: 'top',
+    })
+    // 清除用户信息
+    userStore.clearUserInfo();
+    // 清除用户地址
+    addressStore.clearAddress();
+    // 清除购物车
+    cartStore.clearCart();
+    // 清除token
+    removeToken('accessToken');
+    removeToken('rfreshToken');
+  }
+  return error.response.data;
+});
+
+// 请求拦截器
+api.interceptors.request.use(function (config) {
+  config.headers.Authorization = getToken('accessToken');
+  return config;
+}, function (error) {
+
+  return error;
+})
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
 
