@@ -37,6 +37,11 @@ npm run format
 quasar build
 ```
 
+### 后端Node 
+地址：https://github.com/1542608903/store-server-node
+
+### 后台地址（未上传）
+地址：https://github.com/1542608903/store-server-node
 
 ### 项目图片预览-PC
 ![描述信息](https://github.com/1542608903/store-app/blob/main/img/pc-1.png)
