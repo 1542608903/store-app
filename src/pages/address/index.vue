@@ -24,10 +24,9 @@
           <q-item-section top side>
             <div class="text-grey-8 q-gutter-xs">
               <q-btn class="gt-xs" size="12px" flat dense round icon="delete"
-                @click="openDeleteDialog(item?.id as string)" />
+                @click="openDeleteAddressDialog(item?.id as string)" />
               <q-radio :model-value="item?.is_default ? item?.id : ''" :val="item?.id" checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                @update:model-value="isDialogSetAddress = true, addressId = item?.id as string" />
+                unchecked-icon="panorama_fish_eye" @update:model-value="onSetAddress(item.id as string)" />
             </div>
           </q-item-section>
           <!-- <q-separator spaced /> -->
@@ -36,14 +35,11 @@
     </div>
   </q-page>
 
-  <NoData v-else message="您没有添加地址" icon="fa-solid fa-location-dot" button-text="添加地址" @confirm="add" />
+  <NoData v-else message="您没有添加地址" icon="fa-solid fa-location-dot" button-text="添加地址" @confirm="openAdd" />
 
   <!-- 确认按键组件 -->
-  <ConfirmDialog v-model="isDialogDelete" title="删除确认" message="你确定要删除这条记录吗？" icon="fa-solid fa-trash"
-    @confirm="onDelete" />
-  <ConfirmDialog v-model="isDialogSetAddress" title="设置为默认地址" message="你确定要设置为默认地址吗？" icon="fa-solid fa-location-dot"
-    @confirm="setDefaultAddress" />
-
+  <ConfirmDialog :confirm-dialog="isDialogDelete" title="删除确认" message="你确定要删除这条记录吗？" icon="fa-solid fa-trash"
+    @confirm="onDelete" @cancel="deleteAddressDailogClose" />
   <!-- 弹窗 -->
   <div class="q-pa-md q-gutter-sm">
     <q-dialog v-model="prompt" persistent>
@@ -77,7 +73,6 @@
 import { onMounted, ref } from 'vue';
 import { IAddress } from 'src/types/address';
 import { useQuasar, QForm, } from 'quasar';
-import { createAddress, getAddress, updateDefault, deleteAddress } from 'src/api/address';
 import ConfirmDialog from 'src/components/ConfirmDialog.vue';
 import { useAddressStore } from 'src/stores/address-store';
 import NoData from 'src/components/NoData.vue';
@@ -86,7 +81,8 @@ export default {
   components: {
     // 局部注册组件
     ConfirmDialog,
-    NoData
+    NoData,
+
   },
   setup() {
     const $q = useQuasar();
@@ -111,17 +107,10 @@ export default {
       if (formRef.value) {
         const valid = await formRef.value.validate(); // 等待验证结果
         if (valid) {
-          await createAddress(address.value).then(res => {
-            if (res.code === 0) {
-              addressStore.list.push(res.result.address as IAddress);
-              $q.notify({
-                color: 'green-4',
-                textColor: 'white',
-                icon: 'cloud_done',
-                message: '地址已添加成功'
-              });
-            }
+          await addressStore.saveAddress(address.value).then((res) => {
+            console.log(res);
           })
+          await addressStore.getAddress();
           onReset();
           prompt.value = false;
         }
@@ -129,10 +118,7 @@ export default {
     };
 
     onMounted(async () => {
-      await getAddress().then(res => {
-        // 保存用户地址
-        addressStore.saveAddress(res.result?.addressList);
-      });
+      await addressStore.getAddress();
     });
 
     // 重置表单
@@ -141,10 +127,9 @@ export default {
       prompt.value = false;
     };
 
-    // 删除确认框开启
-    const openDeleteDialog = (id: string) => {
+    const openDeleteAddressDialog = (id: string) => {
       isDialogDelete.value = true;
-      addressId.value = id as string;
+      addressId.value = id;
     };
 
     const onDelete = async () => {
@@ -156,43 +141,9 @@ export default {
           message: '默认地址不能删除'
         })
       }
-
-      await deleteAddress(addressId.value as string).then(res => {
-        if (res.code === 0) {
-          $q.notify({
-            color: 'green-5',
-            textColor: 'white',
-            icon: 'cloud_done',
-            message: '地址删除成功',
-          });
-        }
-      })
-      // 根据删除id 删除数组
       addressStore.deleteAddress(addressId.value as string);
       isDialogDelete.value = false;
       addressId.value = '';
-
-    };
-
-
-    const setDefaultAddress = async () => {
-      isDialogSetAddress.value = true
-      await updateDefault(addressId.value, true).then(res => {
-        if (res.code === 0) {
-          $q.notify({
-            color: 'green-4',
-            textColor: 'white',
-            icon: 'cloud_done',
-            message: '设置默认地址成功'
-          });
-          // 更新默认地址
-          addressStore.setDefaultAddress(addressId.value);
-        }
-      });
-    };
-
-    const add = () => {
-      prompt.value = true;
     };
 
     return {
@@ -202,13 +153,23 @@ export default {
       onSubmit,
       onReset,
       isDialogDelete,
-      openDeleteDialog,
       onDelete,
       isDialogSetAddress,
-      setDefaultAddress,
       addressStore,
-      add,
-      addressId
+      addressId,
+      openDeleteAddressDialog,
+      deleteAddressDailogClose: () => {
+        isDialogDelete.value = false
+      },
+      setDefaultAddressDialogClose: () => {
+        isDialogSetAddress.value = false
+      },
+      openAdd: () => {
+        prompt.value = true
+      },
+      onSetAddress: async (id: string) => {
+        await addressStore.setDefaultAddress(id);
+      }
     };
   }
 };

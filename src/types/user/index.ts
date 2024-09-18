@@ -16,3 +16,23 @@ export type loginData = {
   nick_name?: string
   email?: string
 }
+
+export type inputType = {
+  label: string
+  icon: string
+  type?: string
+}
+
+export type userForm = {
+  avatar?: string
+  nick_name?: string
+  email?: string
+  old_password?: string
+  new_password?: string
+  confirm_password?: string
+}
+
+export type changePassword = {
+  old_password: string
+  new_password: string
+}

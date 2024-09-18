@@ -1,10 +1,10 @@
 <template>
-  <q-dialog v-model="visible" persistent>
+  <q-dialog v-model:model-value="props.confirmDialog" persistent>
     <q-card class="dialog-card">
       <!-- 标题部分，带图标 -->
       <q-card-section class="q-pb-none">
         <div class="text-h6 q-mb-sm title-section">
-          <q-icon :name="icon" size="32px" class="icon" color="primary" />
+          <q-icon :name="icon" size="24px" class="icon" color="primary" />
           <span>{{ title }}</span>
         </div>
       </q-card-section>
@@ -16,7 +16,7 @@
 
       <!-- 动作按钮 -->
       <q-card-actions align="right" class="q-pt-none">
-        <q-btn flat label="取消" color="grey-8" v-close-popup @click="onCancel" />
+        <q-btn flat label="取消" color="grey-8" @click="onCancel" />
         <q-btn flat label="确定" color="primary" @click="onConfirm" />
       </q-card-actions>
     </q-card>
@@ -24,12 +24,11 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
-
 export default {
   props: {
-    modelValue: {  // 父组件控制弹窗打开/关闭状态
+    confirmDialog: {  // 父组件控制弹窗打开/关闭状态
       type: Boolean,
+      default: false,
       required: true
     },
     title: {  // 弹窗标题
@@ -45,35 +44,23 @@ export default {
       default: 'fa-solid fa-trash'
     }
   },
-  emits: ['update:modelValue', 'confirm', 'cancel'],
+  emits: ['confirm', 'cancel'],
 
   setup(props, { emit }) {
-    const visible = ref(props.modelValue);  // 控制弹窗可见性
-
-    // 监听 modelValue 的变化，更新 visible
-    watch(() => props.modelValue, (newValue) => {
-      visible.value = newValue;
-    });
-
-    // 监听 visible 的变化，通知父组件更新状态
-    watch(visible, (newValue) => {
-      emit('update:modelValue', newValue);
-    });
 
     // 用户点击确认按钮
     const onConfirm = () => {
-      emit('confirm');  // 触发 confirm 事件
-      visible.value = false;  // 关闭弹窗
+      emit('confirm');
     };
 
     // 用户点击取消按钮
     const onCancel = () => {
-      emit('cancel');  // 触发 cancel 事件
-      visible.value = false;  // 关闭弹窗
+      emit('cancel');
     };
 
     return {
-      visible,
+      props,
+      emit,
       onConfirm,
       onCancel
     };

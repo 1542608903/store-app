@@ -1,18 +1,18 @@
 <template>
   <q-list bordered class="rounded-borders" style="max-width: 600px">
     <q-item-label header>订单项商品展示</q-item-label>
-    <q-item v-for="(order, index) in props.orders" :key="index">
+    <q-item v-for="(order, index) in props.orders" :key="index" :to="{ path: `/order/sub/${order.id}` }">
       <!-- 商品图片展示，使用滑动效果 -->
       <q-item-section top class="product-img-container">
         <div class="product-img">
           <q-img v-for="(item, index) in order.order_items" :key="index" class="rounded-borders img-slide"
-            :src="item.good.goods_img" />
+            :src="item.product.goods_img" />
         </div>
       </q-item-section>
       <!-- 价格和数量信息 -->
       <q-item-section top side class="price">
         <div class="text-weight-bolder text-overline text-red">￥{{ order.total_price }}</div>
-        <div>共{{ countNumber(order.order_items.map(itme => { return itme.quantity }) as []) }}件</div>
+        <div>共{{ countNumber(order.order_items?.map(itme => { return itme?.quantity }) as []) }}件</div>
       </q-item-section>
     </q-item>
   </q-list>
@@ -28,8 +28,6 @@ export default {
   },
   emits: [],
   setup(props) {
-
-    console.log(props.orders);
     function countNumber(arr: []) {
       // arr 数组相加
       let sum = 0

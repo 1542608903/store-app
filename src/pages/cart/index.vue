@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+// import { useRouter } from 'vue-router'
 import { useCartStore } from 'src/stores/cart-store';
 import { useAddressStore } from 'src/stores/address-store';
 import { IProductInfo } from 'src/types/product';
-import { createOrder } from 'src/api/order';
+import { ICartItem } from 'src/types/cart';
+import { useOrderStore } from 'src/stores/order-store';
 // 组件
 import { Notify } from 'quasar';
 import ConfirmDialog from 'src/components/ConfirmDialog.vue';
@@ -12,91 +13,99 @@ import CarItem from 'components/cart/CartItem.vue'
 import NoData from 'src/components/NoData.vue';
 
 const cartStore = useCartStore();
+const orderStore = useOrderStore();
 const addressStore = useAddressStore();
-const isOpenDelDialog = ref(false);
-const deleteId = ref<string>('');
 const isOpenPayDialog = ref(false);
-const router = useRouter();
+// const router = useRouter();
 
-const checkedAll = () => {
-  cartStore.cartList.forEach((item) => {
-    item.checked = cartStore.checkedAll
-  })
+
+onMounted(async () => {
+  await cartStore.getCartList();
+})
+
+const checkedAll = (i: boolean) => {
+  cartStore.checkAll(i)
+
 }
-const openDeleteDialog = (id: string) => {
-  deleteId.value = id;
-  isOpenDelDialog.value = true;
-};
+const selectedOne = (value: ICartItem) => {
+  cartStore.checkOne(value)
+}
 const openPyaDialog = () => {
   isOpenPayDialog.value = true;
 }
-const remove = () => {
-  cartStore.removeCart(deleteId.value)
+const closePayDalog = () => {
+  isOpenPayDialog.value = false;
+}
+
+const remove = (id: string) => {
+  const i = +id
+  cartStore.removeCart([i]);
 }
 
 const createOrderList = async () => {
-  const list: IProductInfo[] = cartStore.getCheckedList();
+
   const address = addressStore.getDefaultAddress();
-  const total = cartStore.total;
-  if (address.is_default === false) {
+  // 判断是否是默认地址
+  if (!address.is_default) {
     return Notify.create({
       color: 'red-5',
       textColor: 'white',
       icon: 'warning',
-      message: '请您选择默认地址'
+      message: '请先添加默认收货地址'
     })
   }
-  await createOrder(list, address.id as string, total).then(res => {
-    if (res.code === 0) {
-      Notify.create({
-        color: 'green-4',
-        textColor: 'white',
-        icon: 'cloud_done',
-        message: '订单已创建成功'
-      })
-      // 清空购物车
-      list.forEach((item) => {
-        cartStore.removeCart(item.id)
-      })
-      // 跳转订单页
-      router.push('/order')
-    }
+  // 获取购物车中选中的商品
+  const list: IProductInfo[] = cartStore.getCheckedList();
+  const total = cartStore.total;
 
-  }).catch(err => {
+  const res = await orderStore.createOrderStore(list, address.id as string, total);
+  if (res === 0) {
+    // 成功
+    isOpenPayDialog.value = false;
+    cartStore.clearCart();
+    Notify.create({
+      color: 'green-4',
+      textColor: 'white',
+      icon: 'cloud_done',
+      message: '支付成功'
+    })
+  } else {
+    // 失败
     Notify.create({
       color: 'red-5',
       textColor: 'white',
       icon: 'warning',
-      message: err.message
+      message: '支付失败'
     })
-  })
+  }
 }
+
 const refresh = () => {
   // 刷新页面
   location.reload();
 }
+
 </script>
 <template>
-  <q-page v-if="cartStore.cartList.length > 0">
+  <q-page v-if="cartStore.list.length > 0">
     <div class="cart-title">
       <div class="q-pl-xs">
-        <q-checkbox class="q-ml-md" v-model="cartStore.checkedAll" size="sm" @update:model-value="checkedAll"
-          v-if="cartStore.cartList.length > 0 ? true : false" label="全选/反选" />
+        <q-checkbox class="q-ml-md" v-model:model-value="cartStore.checkedAll" size="sm"
+          @update:model-value="checkedAll(cartStore.checkedAll)" v-if="cartStore.list.length > 0 ? true : false"
+          label="全选/反选" />
       </div>
     </div>
-    <CarItem :products="cartStore.cartList" @update-remove="openDeleteDialog" />
+    <CarItem :cart-item="cartStore.list" @update-remove="remove" @selected-one="selectedOne" />
     <div class="cart-foot bg-indigo">
-      <strong class="text-subtitle2 text-weight-bolder text-warning q-ml-lg">结算：{{ cartStore.cartTotalPrice }}</strong>
+      <strong class="text-subtitle2 text-weight-bolder text-warning q-ml-lg">结算：{{ cartStore.totalPrice }}</strong>
       <q-btn class="q-mr-lg" push color="amber" icon="fa-brands fa-google-pay" @click="openPyaDialog" />
     </div>
   </q-page>
   <NoData v-else message="购物车为空" icon="fa-solid fa-cart-arrow-down" button-text="刷新" @confirm="refresh" />
 
   <!-- 确认弹窗组件 -->
-  <ConfirmDialog v-model="isOpenDelDialog" message="确定要删除购物车吗？" title="删除购物车" icon="fa-solid fa-trash"
-    @confirm="remove" />
-  <ConfirmDialog v-model="isOpenPayDialog" message="确定要支付吗？" title="支付" icon="fa-brands fa-google-pay"
-    @confirm="createOrderList" />
+  <ConfirmDialog :confirm-dialog="isOpenPayDialog" :message="'￥' + cartStore.totalPrice.toString() + '确认支付吗？'"
+    title="支付" icon="fa-brands fa-google-pay" @confirm="createOrderList" @cancel="closePayDalog" />
 </template>
 <style scoped>
 .q-page {

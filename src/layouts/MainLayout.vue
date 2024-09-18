@@ -9,7 +9,8 @@
         <q-toolbar-title>简易商店</q-toolbar-title>
         <q-toolbar class="bg-primary text-white rounded-borders" style="max-width: 200px;">
           <q-space />
-          <q-input dark dense standout v-model="text" input-class="text-right" class="q-ml-md" debounce="1000">
+          <q-input dark dense standout v-model="text" input-class="text-right" class="q-ml-md" debounce="1000"
+            label="搜索" @focus="router.push('/')">
             <template v-slot:append>
               <q-icon v-if="text === ''" name="search" />
               <q-icon v-else name="clear" class="cursor-pointer" @click="text = ''" @clear="getValue" />
@@ -22,7 +23,7 @@
             <div class="row no-wrap q-pa-md">
               <div class="column">
                 <div class="text-h6 q-mb-md">Settings</div>
-                <q-toggle v-model="isDark" label="暗色模式" />
+                <q-toggle v-model="isDark" :icon="isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun'" />
               </div>
 
               <q-separator vertical inset class="q-mx-lg" />
@@ -36,7 +37,7 @@
                 </div>
 
                 <q-btn color="primary" :label="userStore.isLogin ? '注销' : '登录'" push size="md" v-close-popup
-                  @click="userStore.isLogin ? userStore.clearUserInfo() : router.push('/login')" />
+                  @click="userStore.isLogin ? loginOut() : router.push('/login')" />
               </div>
             </div>
           </q-btn-dropdown>
@@ -50,7 +51,9 @@
 
     </q-header>
     <q-page-container>
+
       <router-view />
+
     </q-page-container>
   </q-layout>
 </template>
@@ -62,13 +65,14 @@ import { useProductStore } from 'src/stores/product-store';
 import { generateRoutes } from 'src/router/routes';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar'
+
 const userStore = useUserStore();
 const productStore = useProductStore();
-const tabs = generateRoutes();
-const isDark = ref(false);
-const $q = useQuasar();
-const text = ref('');
 const router = useRouter();
+const $q = useQuasar();
+const tabs = generateRoutes()
+const text = ref('');
+const isDark = ref(false);
 
 watch(isDark, () => {
   $q.dark.set(isDark.value);
@@ -77,7 +81,10 @@ watch(isDark, () => {
 watch(text, async () => {
   productStore.searchProduct(text.value);
 })
-
+const loginOut = () => {
+  userStore.clearUserInfo()
+  router.push('/');
+}
 defineOptions({
   name: 'MainLayout'
 });

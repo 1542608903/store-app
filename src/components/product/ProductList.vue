@@ -1,25 +1,58 @@
-<script lang="ts" setup>
+<script lang="ts">
+import { ref, defineComponent } from 'vue';
 import { IProduct } from 'src/types/product';
 
-const props = defineProps<{ product: IProduct }>()
-const emit = defineEmits(['addCart']);
 
-const addCart = () => {
-  emit('addCart', props.product);
-}
+export default defineComponent({
+  name: 'ProductList',
+  props: {
+    product: {
+      type: Object as () => IProduct,
+      default: () => { },
+    },
+  },
+  emits: ['addCart'],
+  setup(props, { emit }) {
+
+    const isSkeleton = ref(true);
+    // 开启isSkeleton 1秒后改为false
+    setTimeout(() => {
+      isSkeleton.value = false;
+    }, 1000)
+    return {
+      props,
+      isSkeleton,
+      addCart(product: IProduct) {
+        emit('addCart', product);
+      },
+    }
+  }
+
+})
+
 </script>
 
 <template>
   <q-card class="my-card">
-    <q-item-section>
-      <q-img :src="product.goods_img" class="q-card-img rounded-borders" />
+    <q-item-section class="goods-img">
+      <!-- 使用骨架加载动画占位图片 -->
+      <q-skeleton v-if="isSkeleton" type="rect" class="q-card-img rounded-borders" />
+      <q-img v-else :src="product?.goods_img" class="q-card-img rounded-borders" />
     </q-item-section>
-    <div class="good_title">
-      <strong>{{ product.goods_name }}</strong>
+
+    <!-- 商品标题 -->
+    <div class="goods_title">
+      <q-skeleton v-if="isSkeleton" type="text" />
+      <strong v-else>{{ product?.goods_name }}</strong>
     </div>
+
+    <!-- 商品价格与按钮 -->
     <div class="content-box">
-      <strong class="price"><strong>￥</strong> {{ product.goods_price }}</strong>
-      <q-btn round color="red" icon="shopping_cart" size="sm" @click="addCart"></q-btn>
+      <q-skeleton v-if="isSkeleton" type="rect" width="50px" height="20px" />
+      <strong class="price" v-else><strong>￥</strong> {{ product?.goods_price }}</strong>
+
+      <q-skeleton v-if="isSkeleton" type="QBtn" width="32px" height="32px" />
+      <q-btn v-else round color="red" icon="shopping_cart" size="sm" @click="addCart(product)"></q-btn>
     </div>
   </q-card>
 </template>
@@ -39,43 +72,39 @@ const addCart = () => {
 
 .q-card {
   width: 150px;
-  /* 调整卡片的宽度 */
   height: 220px;
-  /* 调整卡片的高度 */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 10px;
-  /* 添加内边距以增加空间 */
 }
 
 .q-card:hover {
   transform: scale(1.05);
-  /* 减小放大效果 */
   transition: transform 0.3s;
   cursor: pointer;
 }
 
-.q-card-img {
-  width: 140px;
-  /* 调整图片的宽度 */
-  height: 140px;
-  /* 调整图片的高度 */
+.goods_img {
+  margin: 0;
+  padding: 0;
 }
 
-.good_title,
+.q-card-img {
+  width: 130px;
+  height: 130px;
+}
+
+.goods_title,
 .content-box {
   width: 100%;
   color: #442626;
-  /* 使标题和内容区域填充卡片宽度 */
 }
 
-.good_title {
+.goods_title {
   text-align: center;
-  /* 使标题居中 */
   margin-bottom: 5px;
-  /* 调整标题和内容之间的间距 */
 }
 
 .content-box {
@@ -83,6 +112,5 @@ const addCart = () => {
   justify-content: space-between;
   align-items: center;
   padding: 5px 0;
-  /* 调整内容区域的内边距 */
 }
 </style>

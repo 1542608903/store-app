@@ -91,11 +91,12 @@ export default {
               position: 'top',
             })
             // 保存用户信息
-            userStore.saveUserInfo(res.result.user as IUser);
-            saveToken('accessToken', res.result.accessToken as string);
-            saveToken('rfreshToken', res.result.rfreshToken as string);
-            // 跳转首页
-            router.push('/');
+            userStore.saveUserInfo(res.result?.user as IUser);
+            saveToken('accessToken', res.result?.accessToken as string);
+            saveToken('rfreshToken', res.result?.rfreshToken as string);
+
+            // 跳转到首页
+            router.push('/')
           } else {
             $q.notify({
               type: 'negative',
@@ -119,8 +120,8 @@ export default {
               message: res.message,
               position: 'top',
             })
-            // 跳转首页页
-            router.push('/');
+            registerFormVisible.value = true;
+
           } else {
             $q.notify({
               type: 'negative',

@@ -8,8 +8,8 @@ export interface IOrder {
   total_price: number
   status: number
   order_number: string
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
   address: IAddress
   order_items: orderItems[]
 }
@@ -22,10 +22,5 @@ export interface orderItems {
   quantity: number
   created_at: string
   updated_at: string
-  good: IProduct
-}
-
-
-export interface IOrderResponse {
-  result: IOrder[]
+  product: IProduct
 }
