@@ -204,8 +204,6 @@ const create = async () => {
 const goPay = () => {
   router.push({ path: '/' });
 };
-
-console.log(process.env);
 </script>
 <template>
   <q-page>
