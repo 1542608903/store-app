@@ -1,67 +1,84 @@
-<script lang="ts">
+<script lang="ts" setup name="CartItem">
+import { ref } from 'vue';
 import { ICartItem } from 'src/types/cart';
-export default {
-  props: {
-    cartItem: {
-      type: Array as () => ICartItem[],
-      default: () => []
-    }
+import QuantityButton from 'src/components/cart/QuantityButton.vue';
+
+const props = defineProps({
+  value: {
+    type: Object as () => ICartItem,
+    required: true,
   },
-  emits: ['update-remove', 'selected-one'],
-  setup(props, { emit }) {
-    return {
-      props,
-      removeCart: (index: number) => {
-        emit('update-remove', index)
-      },
-      selectedOne: (index: ICartItem, number?: number) => {
-        emit('selected-one', index, number)
-      }
-    }
+});
+
+const emit = defineEmits(['update:checke', 'update:number']);
+const cart = ref(props.value);
+
+const updateCartNumber = (number: number) => {
+  if (cart.value.number !== number) {
+    // 触发事件
+    emit('update:number', props.value.id, number);
   }
-}
+};
 </script>
 
 <template>
-  <div class="q-ma-xs cart-item" v-for="(item, index) in props.cartItem" :key="index">
-    <q-card class="my-card">
-      <q-card-section horizontal>
-        <div class="q-pa-md q-ma-xs" style="display: flex; align-items: center;">
-          <q-checkbox v-model="item.selected" size="sm" @update:model-value="selectedOne(item)" />
+  <q-card flat bordered class="my-card">
+    <q-item clickable>
+      <q-checkbox
+        :model-value="props.value.selected"
+        class="q-mr-md"
+        @update:model-value="emit('update:checke', cart)"
+      />
+      <q-item-section style="max-width: 80px">
+        <q-img
+          :src="cart.product.goods_img"
+          class="product-img"
+          alt="商品图片"
+          :ratio="1 / 1"
+        />
+      </q-item-section>
+      <q-item-section class="center">
+        <div class="text-h6">{{ cart.product.goods_name }}</div>
+        <div class="text-subtitle2 text-red">
+          ￥{{ cart.product.goods_price }}
         </div>
-        <q-img class="col" :src="item.product.goods_img" width="100px" />
-        <q-card-section class="q-pt-xs">
-          <div class="items-center">
-            <div class="col text-h6 ellipsis">
-              {{ item.product.goods_name }}
-            </div>
-            <div class="text-orange text-subtitle2 q-mt-sm">
-              ￥{{ item.product.goods_price }}
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right">
-          <div class="q-pa-md" style="display: inline-block;">
-            <q-input v-model.number="item.number" type="number" min="1" dense style="max-width: 70px;"
-              @update:model-value="selectedOne(item)" label="数量" />
-          </div>
-          <q-btn flat round icon="fa-solid fa-trash" size="sm" color="red" @click="removeCart(item.id)" />
-        </q-card-actions>
-      </q-card-section>
-    </q-card>
-  </div>
+        <div class="flex justify-between items-center q-ma-xs">
+          <QuantityButton
+            :quantity="cart.number"
+            :maxQuantity="10"
+            :min-quantity="1"
+            buttonSize="xs"
+            @update:number="updateCartNumber"
+          />
+        </div>
+      </q-item-section>
+    </q-item>
+  </q-card>
 </template>
-
 <style scoped>
-.cart-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
+.my-card {
+  margin: 0;
+  padding: 0;
+}
+.product-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+  background-color: rgba(165, 165, 165, 0.253);
+  transition: transform 0.2s;
+}
+.product-img:hover {
+  transform: scale(1.05);
 }
 
-.q-card {
-  max-width: 400px;
+.total-price {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.center {
   display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

@@ -1,5 +1,5 @@
 export interface IProduct {
-  id: string;
+  id: number;
   goods_name: string;
   goods_price: number;
   goods_num: number;
@@ -7,18 +7,12 @@ export interface IProduct {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
-  // 是否选中 默认选中
-  checked?: boolean;
 }
 
-export interface IProductResponse {
-  result: {
-    list: IProduct[];
-  };
-}
-
-export interface IProductInfo {
-  id: string;
+export type Product = {
+  id: number;
   goods_price: number;
   quantity: number;
-}
+  addressId: number;
+  total: number;
+};

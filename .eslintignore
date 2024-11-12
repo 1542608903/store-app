@@ -5,3 +5,9 @@
 /node_modules
 .eslintrc.cjs
 /quasar.config.*.temporary.compiled*
+
+
+.eslintrc.js
+ios/
+android/
+*.config.js

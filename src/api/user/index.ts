@@ -1,19 +1,36 @@
 import { api } from 'boot/axios';
-import type { loginData, changePassword, IUser } from 'src/types/user'
-import { IAxiosResponse, AxiosResponse, Result } from 'src/types';
+import type {
+  loginData,
+  IUser,
+  userForm,
+} from 'src/types/user';
+import { AxiosResponse, Result } from 'src/types';
 
 // 注册接口
-async function register(data: loginData): Promise<IAxiosResponse> {
+async function register(
+  data: loginData
+): Promise<AxiosResponse<Result<IUser>>> {
   return await api.post('/user/register', data);
 }
-
-async function login(data: loginData): Promise<AxiosResponse<Result<IUser>>> {
-  const { user_name, password } = data
-  return await api.post('/user/login', { user_name, password });
+// 登录接口
+/**
+ *
+ * @param data user_name, password, codeKey, code
+ * @returns
+ */
+async function login(user_name: string, password: string, codeKey: string, code: string): Promise<AxiosResponse<Result<IUser>>> {
+  return await api.post('/user/login', { user_name, password, codeKey, code });
 }
-
-async function changePassword(data: changePassword) {
+// 修改密码接口
+async function updatePassword(
+  data: userForm
+): Promise<AxiosResponse<Result<boolean>>> {
   return await api.patch('/user/change-password', data);
 }
+// 修改用户修改
+async function userEdit(data: userForm): Promise<AxiosResponse<Result<IUser>>> {
+  return await api.patch('/user/change-user', data);
+}
+
 // 导出
-export { login, register, changePassword }
+export { login, register, updatePassword, userEdit };

@@ -1,55 +1,45 @@
 import { defineStore } from 'pinia';
 import { IProduct } from 'src/types/product';
-import { getProducts, getSearch } from 'src/api/product';
+import { getSearch } from 'src/api/product';
 
 export const useProductStore = defineStore('product', {
   state: () => ({
     list: [] as IProduct[],
-    count: 20,
+    count: 16,
   }),
-  getters: {
-
-  },
+  getters: {},
   actions: {
     /**
-     * 获取商品
-     * @param index
-     * @param done
+     * 保存商品
      */
-    async saveProduct(index: number, done: () => void) {
-      await getProducts(index, this.count).then((res) => {
-        const data = res.result?.list as IProduct[];
-        if (data.length === 0) {
-          done();
-          return;
-        }
-        // 更新产品列表
-        this.list = [...this.list, ...data.map(item => item)];
-        // 调用 done() 表示数据加载完成
-        done();
-      }).catch((error) => {
-
-        done();
-        throw error;
-      });
+    saveProduct(data: IProduct[]) {
+      this.list.push(...data);
     },
+
     /**
      * 搜索商品
      * @param value
      */
     async searchProduct(value: string) {
       try {
+        if (!value) {
+          return;
+        }
+        this.list = [];
         await getSearch(value).then((res) => {
           const data = res.result?.list as IProduct[];
           if (data.length === 0) return;
-          this.clearProduct();
-          this.list = [...data.map(item => item)];
-        })
+          this.list = [...data.map((item) => item)];
+        });
       } catch (error) {
-        throw error
+        throw error;
       }
     },
-
+    resetProductList() {
+      if (this.list.length > 0) {
+        return this.list;
+      }
+    },
     /**
      * 清除商品
      */

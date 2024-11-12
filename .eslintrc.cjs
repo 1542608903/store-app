@@ -68,7 +68,6 @@ module.exports = {
   // add your custom rules here
   rules: {
     'prefer-promise-reject-errors': 'off',
-
     quotes: ['warn', 'single', { avoidEscape: true }],
     //在rules中添加自定义规则
     //关闭组件命名规则

@@ -1,4 +1,3 @@
-
 /**
  *保存token
  * @param {string} name "accessToken"
@@ -10,17 +9,17 @@ const saveToken = (name: string = 'accessToken', token: string) => {
 
 /**
  *读取token
- * @param {string} "accessToken"
- * @return {string} "token"
+ * @param {string} name "accessToken"
+ * @return {string}  "token"
  */
 const getToken = (name: string = 'accessToken'): string | undefined | null => {
   return 'Bearer ' + localStorage.getItem(name);
-}
+};
 
 /**
-*删除token
-* @param {string} "accessToken/rfreshToken"
-*/
+ *删除token
+ * @param {string} name "accessToken/rfreshToken"
+ */
 const removeToken = (name: string = 'accessToken') => {
   localStorage.removeItem(name);
 };

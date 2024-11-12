@@ -1,65 +1,42 @@
 import { defineStore } from 'pinia';
 import { IAddress } from 'src/types/address';
-import { createAddress, getAddress, updateDefault, deleteAddress } from 'src/api/address/index';
-// import { Notify } from 'quasar';
+import { queryAddress } from 'src/api/address';
+
 export const useAddressStore = defineStore('address', {
   state: () => ({
-    list: [] as IAddress[]
+    list: [] as IAddress[],
   }),
-  getters: {
-
-  },
+  getters: {},
   actions: {
-    // 保存用户地址
-    async saveAddress(address: IAddress) {
-      await createAddress(address as IAddress).then((res) => {
-        this.list = res.result?.address as IAddress[];
-        return true;
-      }).catch(() => {
-        return false
-      })
-    },
-    // 删除用户地址
-    async deleteAddress(id: string) {
-      await deleteAddress(id).then(() => {
-        this.getAddress();
-      })
-    },
-    async getAddress() {
-      await getAddress().then((res) => {
-        this.list = res.result?.address as IAddress[];
-        return true
-      }).catch(() => {
-        return false
-      })
-    },
-    // 获取默认地址
-    getDefaultAddress() {
-      return { ...this.list.filter(item => item.is_default)[0] }
-    },
-    // 判断是否是默认地址是返回true
-    isDefaultAddress(id: string) {
-      return this.list.filter(item => item.is_default).some(item => item.id === id)
+    saveAddress(data: IAddress[]) {
+      this.list = data;
     },
 
-    // 接收id 设置默认地址
-    async setDefaultAddress(id: string) {
-      await updateDefault(id, true).then((res) => {
-        console.log(res);
-        if (res.code === 0) {
-          this.getAddress();
+    deleteAddressStore(id: number) {
+      const i = this.list.findIndex((item) => item.id === id);
+      this.list.splice(i, 1);
+    },
+    updateAddressStore(id: number) {
+      // 确保找到了目标地址
+      const j = this.list.findIndex((item) => item.id === id);
+      if (j === -1) return;
+      // 将当前默认项重置为 false，并设置目标项为 true
+      this.list.forEach((item) => (item.is_default = false));
+      this.list[j].is_default = true;
+    },
+    async query(): Promise<IAddress> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const res = await queryAddress();
+          const data = res.result as IAddress;
+          resolve(data);
+        } catch (error) {
+          reject(error);
         }
       })
-      return id
-    },
-    // 清空用户地址
-    clearAddress() {
-      this.list = [];
     },
   },
   persist: {
     storage: localStorage,
-  }
-}
-
-);
+  },
+});

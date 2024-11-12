@@ -1,70 +1,92 @@
 <template>
-  <q-list bordered class="rounded-borders" style="max-width: 600px">
-    <q-item-label header>订单项商品展示</q-item-label>
-    <q-item v-for="(order, index) in props.orders" :key="index" :to="{ path: `/order/sub/${order.id}` }">
-      <!-- 商品图片展示，使用滑动效果 -->
-      <q-item-section top class="product-img-container">
-        <div class="product-img">
-          <q-img v-for="(item, index) in order.order_items" :key="index" class="rounded-borders img-slide"
-            :src="item.product.goods_img" />
+  <q-item class="q-mt-xs" :to="{ path: `/order-detail/${order.id}` }">
+    <q-item-section top class="product-img-container">
+      <div class="text-caption text-grey q-mb-xs">
+        <q-icon name="fa-solid fa-calendar-day" size="16px" class="q-mr-xs" />
+        下单时间: {{ date.formatDate(order.createdAt, 'YYYY-MM-DD HH:mm:ss') }}
+      </div>
+      <q-scroll-area
+        style="height: 90px; margin-right: 100px"
+        :thumb-style="{
+          right: '4px',
+          borderRadius: '5px',
+          background: 'info',
+          width: '8px',
+        }"
+      >
+        <div class="row no-wrap">
+          <q-img
+            v-for="(item, i) in order.order_items"
+            :key="i"
+            class="rounded-borders img-slide"
+            :src="item.product?.goods_img"
+            alt="商品图片"
+            lazy-src
+            spinner-color="primary"
+            :ratio="1 / 1"
+          />
         </div>
-      </q-item-section>
-      <!-- 价格和数量信息 -->
-      <q-item-section top side class="price">
-        <div class="text-weight-bolder text-overline text-red">￥{{ order.total_price }}</div>
-        <div>共{{ countNumber(order.order_items?.map(itme => { return itme?.quantity }) as []) }}件</div>
-      </q-item-section>
-    </q-item>
-  </q-list>
+      </q-scroll-area>
+    </q-item-section>
+    <q-item-section top side class="price">
+      <PriceDisplay
+        class="text-red"
+        :total-price="order.total_price as number"
+        is-unit="￥"
+      />
+      <div class="text-caption">
+        共{{
+          countNumber(
+            order?.order_items.map((item) => item.quantity) as number[]
+          )
+        }}件
+      </div>
+      <q-badge :color="order.state ? 'green' : 'blue'">
+        {{ order.state ? '已支付' : '未支付' }}
+      </q-badge>
+    </q-item-section>
+  </q-item>
+  <q-separator v-bind="$attrs" />
 </template>
+
 <script lang="ts">
 import { IOrder } from 'src/types/order';
-export default {
-
-  props: {
-    orders: {
-      type: Array as () => IOrder[]
-    }
+// useAttrs
+import { defineComponent } from 'vue';
+import { date } from 'quasar';
+import PriceDisplay from 'src/components/PriceDisplay.vue';
+export default defineComponent({
+  components: {
+    PriceDisplay,
   },
-  emits: [],
+  props: {
+    order: {
+      type: Object as () => IOrder,
+      required: true,
+    },
+  },
+
   setup(props) {
-    function countNumber(arr: []) {
-      // arr 数组相加
-      let sum = 0
-      arr.forEach(item => {
-        sum += item
-      })
-      return sum
+    function countNumber(arr: number[]) {
+      return arr.reduce((sum, item) => sum + item, 0);
     }
     return {
+      countNumber,
       props,
-      countNumber
-    }
-  }
-}
+      date,
+    };
+  },
+});
 </script>
-<style scoped>
-.product-img-container {
-  width: 100%;
-  overflow: hidden;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
 
-.product-img {
+<style scoped>
+.q-item {
   display: flex;
-  flex-direction: row;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  justify-content: center;
 }
 
 .product-img::-webkit-scrollbar {
   display: none;
-  /* 隐藏 WebKit 浏览器（Chrome, Safari）滚动条 */
 }
 
 .img-slide {
@@ -72,13 +94,18 @@ export default {
   height: 80px;
   margin-right: 5px;
   background-color: rgba(165, 165, 165, 0.253);
+  transition: transform 0.2s;
+}
+
+.img-slide:hover {
+  transform: scale(1.05);
 }
 
 .price {
-  width: 80px;
+  width: 100px;
   height: 100%;
-  background-color: rgba(255, 255, 255, .5);
   position: absolute;
+  background-color: rgba(39, 39, 39, 0.644);
   right: 5px;
   top: 0;
   display: flex;
@@ -86,5 +113,6 @@ export default {
   justify-content: center;
   flex-direction: column;
   padding: 0;
+  color: white;
 }
 </style>

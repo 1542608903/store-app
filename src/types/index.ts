@@ -1,37 +1,45 @@
 import { IUser } from './user';
-import { IProduct } from './product';
-import { IAddress } from 'src/types/address';
-// import { IOrder } from 'src/types/order';
-export interface IAxiosResponse {
-  code: number;
-  message: string;
-  result: IResult;
-}
-
-export interface IResult {
-  order?: object,
-  list?: IProduct[]
-  user?: IUser
-  address?: IAddress
-  addressList?: IAddress[]
-  accessToken?: string
-  rfreshToken?: string
-}
 
 export interface AxiosResponse<T> {
-  code: number;
+  code: number | string;
   message: string;
-  result?: Result<T> | T;
+  result: Result<T> | T;
 }
 
 export interface Result<T> {
-  order?: T,
-  list?: T
-  user?: IUser
-  address?: T
-  accessToken?: string
-  rfreshToken?: string
+  list?: T[];
+  user?: IUser;
+  accessToken?: string;
+  refreshToken?: string;
   pageNum?: number;
   pageSize?: number;
   total?: number;
+  url?: string | string[];
+}
+
+export type ErrorResponse = {
+  code: string;
+  message: string;
+};
+
+export type Notify =
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'center';
+
+
+export interface Dialog {
+  open: () => void;
+  close: () => void;
+  validate: () => boolean;
+}
+export interface Handle {
+  show: () => void;
+  hide: () => void;
 }
