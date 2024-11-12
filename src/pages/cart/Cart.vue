@@ -151,8 +151,9 @@ const cartRemove = async () => {
     return notifyUser('您还没选择商品', 'red');
   }
 
+  const items = { ids: ids };
   //删除购物车
-  await removes(ids).then((res) => {
+  await removes(items).then((res) => {
     if (res.code === 0) {
       cancelRef.value?.close();
       const data = list.filter((item) => !ids.includes(item.id));

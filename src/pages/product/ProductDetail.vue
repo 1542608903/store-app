@@ -2,7 +2,7 @@
   <q-page>
     <list-box class="list-box">
       <template v-slot:header>
-        <q-toolbar class="bg-grey-1 rounded-borders">
+        <q-toolbar class="bg-secondary rounded-borders">
           <q-btn
             flat
             dense
@@ -28,8 +28,8 @@
           <!-- 商品信息 -->
           <div class="product-info">
             <!-- 商品名称 -->
-            <h1 class="product-name">{{ product?.goods_name }}</h1>
-
+            <!-- <h1 class="product-name">{{ product?.goods_name }}</h1> -->
+            <p class="text-h6">{{ product?.goods_name }}</p>
             <!-- 商品价格 -->
             <p class="product-price">￥{{ product?.goods_price }}</p>
 
@@ -123,6 +123,7 @@ const addCart = async () => {
     const res = await createCart(id);
     if (res.code === 0) {
       notifyUser(res.message, 'green');
+      router.push({ path: '/cart' });
     } else {
       notifyUser(res.message, 'red');
     }

@@ -1,6 +1,6 @@
 import { api } from 'boot/axios';
 import { AxiosResponse, Result } from 'src/types';
-import { ICartItem } from 'src/types/cart';
+import { ICartItem, cartItemsID } from 'src/types/cart';
 
 export async function createCart(
   id: number
@@ -36,7 +36,7 @@ export async function updateOneNumber(
 }
 
 export async function removes(
-  ids: Array<number>
+  items: cartItemsID
 ): Promise<AxiosResponse<Array<number>>> {
-  return await api.post('/cart/remove', ids);
+  return await api.post('/cart/remove', items);
 }

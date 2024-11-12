@@ -10,3 +10,7 @@ export interface ICartItem {
   updatedAt: string;
   product: IProduct;
 }
+
+export interface cartItemsID {
+  ids: number[];
+}

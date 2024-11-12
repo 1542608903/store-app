@@ -193,7 +193,6 @@ a {
 }
 
 .q-item {
-  /* width: 300px; */
   margin: 0 auto;
   background-color: rgba(241, 241, 241, 0.911);
   color: #000;

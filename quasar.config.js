@@ -49,7 +49,7 @@ module.exports = configure(function (/* ctx */) {
       open: true,
       proxy: {
         '/api': {
-          // http://127.0.0.1:8800
+          // http://127.0.0.1:8800 测试地址 http://47.119.172.215:9988/
           target: 'http://127.0.0.1:8800',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),

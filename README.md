@@ -126,3 +126,7 @@ git push -u origin feature
    git add .
    git commit -m "fix bug"
    git push
+
+### 测试地址
+
+http://47.119.172.215:9988/
