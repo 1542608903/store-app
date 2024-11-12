@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref } from 'vue';
 import { useUserStore } from 'src/stores/user-store';
-import type { userForm } from 'src/types/user';
+import type { userForm, IUser } from 'src/types/user';
 import { userEdit } from 'src/api/user';
 import { upload } from 'src/api/upload';
 import { useQuasar, QForm } from 'quasar';
@@ -33,7 +33,7 @@ type fileTypeVerifyRes = {
   type: string;
 };
 
-const edit = async () => {
+const saveEdit = async () => {
   if (formRef.value) {
     const valid = await formRef.value.validate();
     if (valid) {
@@ -58,10 +58,12 @@ const edit = async () => {
         .then((res) => {
           notifyUser(res.message);
           isDisable.value = true;
-          const avatar = res.result.user?.avatar as string;
-          if (avatar) {
+          const result = res?.result.user as IUser;
+          if (result?.nick_name) {
             userStore.$patch((state) => {
-              state.userInfo.avatar = avatar;
+              state.userInfo.avatar = result.avatar;
+              state.userInfo.nick_name = result.nick_name;
+              state.userInfo.email = result.email;
             });
           }
         })
@@ -164,7 +166,7 @@ const uploadAvatar = async (file: FormData) => {
       </q-card-section>
       <q-card-actions class="actions" vertical>
         <q-btn color="primary" @click="isDisable = !isDisable">编辑</q-btn>
-        <q-btn color="green-5" @click="edit">保存</q-btn>
+        <q-btn color="green-5" @click="saveEdit">保存</q-btn>
       </q-card-actions>
     </q-card>
   </q-page>

@@ -145,12 +145,9 @@ const openDark = (v: boolean) => {
 };
 
 const search = async (text: string) => {
-  // 排除无效字符 例如空格
-
   if (text.length < 1) {
     return;
   }
-  console.log(text.length);
   showList.value = true;
   await searchProduct(text);
 };

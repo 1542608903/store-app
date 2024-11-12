@@ -43,11 +43,12 @@ quasar build
 地址：https://github.com/1542608903/store-server-node
 
 ### 后台地址（未上传）
+
 <<<<<<< HEAD
 
-地址：https://github.com/1542608903/store-server-node
-=======
->>>>>>> f3eb893a54e182b8a3f73013ab3ef653c50d5e3c
+# 地址：https://github.com/1542608903/store-server-node
+
+> > > > > > > f3eb893a54e182b8a3f73013ab3ef653c50d5e3c
 
 ### 项目图片预览-PC
 
@@ -67,13 +68,14 @@ quasar build
 =======
 
 ### 项目图片预览-移动端
+
 ![描述信息](https://github.com/1542608903/store-app/blob/main/img/Screenshot_2024-10-24-13-38-54-519_com.microsoft.emmx.jpg)
 ![描述信息](https://github.com/1542608903/store-app/blob/main/img/Screenshot_2024-10-24-13-39-18-362_com.microsoft.emmx.jpg)
 ![描述信息](https://github.com/1542608903/store-app/blob/main/img/Screenshot_2024-10-24-13-39-24-610_com.microsoft.emmx.jpg)
 ![描述信息](https://github.com/1542608903/store-app/blob/main/img/Screenshot_2024-10-24-13-39-42-412_com.microsoft.emmx.jpg)
 
+> > > > > > > f3eb893a54e182b8a3f73013ab3ef653c50d5e3c
 
->>>>>>> f3eb893a54e182b8a3f73013ab3ef653c50d5e3c
 ### Customize the configuration
 
 See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
@@ -116,3 +118,11 @@ git checkout feature # 切换到 feature 分支
 ### 将这个分支的代码推送到远程仓库的 feature 分支：
 
 git push -u origin feature
+
+1. 将自己新写的代码备份到其他地方。
+2. 删除本地项目里自己新写的代码。
+3. git pull 下拉代码，使本地代码与远端代码一致。
+4. 重新上传代码
+   git add .
+   git commit -m "fix bug"
+   git push
