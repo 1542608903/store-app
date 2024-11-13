@@ -44,12 +44,7 @@ onMounted(async () => {
   for (let i = 0; i < data.length; i++) {
     list.push(data[i]);
   }
-  const len = list.filter((item) => item.selected === true).length;
-
-  if (len === data.length) {
-    checked.value = true;
-    count(); // 计算
-  }
+  count(); // 计算
 });
 
 // 通知封装函数
@@ -137,7 +132,7 @@ const all = async (e: boolean) => {
   count();
 };
 // 删除购物车
-const cartRemove = async () => {
+const remove = async () => {
   // 初始化
   const ids: Array<number> = [];
 
@@ -193,7 +188,7 @@ const create = async () => {
     await createOrder(data).then((res) => {
       const order = res.result as IOrder;
       if (res.code === 0) {
-        cartRemove(); // 删除购物车
+        remove(); // 删除购物车
         router.push({ path: `/order-detail/${order.id}` }); // 创建订单成功后跳转
       }
     });
@@ -267,7 +262,7 @@ const goPay = () => {
     <MyDialog
       ref="cancelRef"
       title="您确认是否删除已选中的购物车"
-      @submit="cartRemove"
+      @submit="remove"
     />
     <MyDialog ref="payRef" title="您确认是否购买" @submit="create" />
   </q-page>
