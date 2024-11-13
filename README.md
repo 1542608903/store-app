@@ -43,12 +43,8 @@ quasar build
 地址：https://github.com/1542608903/store-server-node
 
 ### 后台地址（未上传）
+地址：
 
-<<<<<<< HEAD
-
-# 地址：https://github.com/1542608903/store-server-node
-
-> > > > > > > f3eb893a54e182b8a3f73013ab3ef653c50d5e3c
 
 ### 项目图片预览-PC
 
