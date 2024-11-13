@@ -4,6 +4,7 @@ import errorRouter from './module/error';
 import loginRouter from './module/login';
 import orderRouter from './module/order';
 import userRouter from './module/user';
+import aboutRouter from './module/about';
 import { AppRouteRecordRaw } from 'src/types/router';
 // import { IProduct } from 'src/types/product';
 const routes: AppRouteRecordRaw[] = [
@@ -39,6 +40,7 @@ const routes: AppRouteRecordRaw[] = [
       ...orderRouter,
       ...userRouter,
       errorRouter,  // 如果是单个路由，不用展开
+      aboutRouter,
     ],
   },
   loginRouter,

@@ -166,7 +166,9 @@ const uploadAvatar = async (file: FormData) => {
       </q-card-section>
       <q-card-actions class="actions" vertical>
         <q-btn color="primary" @click="isDisable = !isDisable">编辑</q-btn>
-        <q-btn color="green-5" @click="saveEdit">保存</q-btn>
+        <q-btn color="green-5" @click="saveEdit" :disable="isDisable"
+          >保存</q-btn
+        >
       </q-card-actions>
     </q-card>
   </q-page>

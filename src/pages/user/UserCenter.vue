@@ -78,9 +78,20 @@
             <q-icon name="fa-solid fa-user-pen" />
           </q-item-section>
         </q-item>
+        <q-item clickable to="/about">
+          <q-item-section>
+            <q-item-label class="text-bold">关于项目</q-item-label>
+            <q-item-label caption>关于我的项目</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-icon name="fa-solid fa-address-book" />
+          </q-item-section>
+        </q-item>
         <q-item clickable @click="logoutRef?.open()">
           <q-item-section>
-            <q-item-label class="text-bold text-negative">注销</q-item-label>
+            <q-item-label class="text-bold text-negative"
+              >退出登录</q-item-label
+            >
             <q-item-label caption>退出当前账号</q-item-label>
           </q-item-section>
           <q-item-section side>

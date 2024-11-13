@@ -13,8 +13,6 @@
             </div>
             <template v-slot:loading>
               <div class="row justify-center q-my-md">
-                <!-- <q-spinner-dots color="primary" size="40px" /> -->
-                <!-- <q-spinner color="primary" size="3em" :thickness="10" /> -->
                 <q-spinner color="primary" size="3em" />
               </div>
             </template>

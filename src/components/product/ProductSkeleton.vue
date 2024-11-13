@@ -18,7 +18,7 @@ export default {
 };
 </script>
 <template>
-  <q-card v-if="isSkeleton">
+  <q-card>
     <q-item class="product-item">
       <q-item-section>
         <q-skeleton width="100px" height="140px" square />
@@ -35,10 +35,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.product-image-section {
-  width: 100%;
-  display: flex;
-  align-items: center;
+  height: 200px;
 }
 </style>

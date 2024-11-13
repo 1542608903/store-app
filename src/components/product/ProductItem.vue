@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { IProduct } from 'src/types/product';
 import PriceDisplay from 'src/components/PriceDisplay.vue';
 export default defineComponent({
@@ -12,11 +12,22 @@ export default defineComponent({
       type: Object as () => IProduct,
       default: () => {},
     },
+    show: {
+      type: Boolean,
+      default: true,
+    },
   },
   emits: ['addCart', 'update:click'],
   setup(props, { emit }) {
+    const loading = ref(props.show);
+
+    setTimeout(() => {
+      loading.value = false;
+    }, 1000);
+
     return {
       props,
+      loading,
       emit,
       addCart(product: IProduct) {
         emit('addCart', product);
@@ -27,7 +38,18 @@ export default defineComponent({
 </script>
 
 <template>
-  <q-card>
+  <q-card v-if="loading">
+    <q-item class="product-item">
+      <q-item-section class="product-image-section">
+        <q-skeleton class="product-image" square />
+      </q-item-section>
+      <q-item-section>
+        <q-skeleton type="text" width="100px" height="30px" />
+        <q-skeleton type="text" width="100px" height="20px" />
+      </q-item-section>
+    </q-item>
+  </q-card>
+  <q-card v-else>
     <q-item
       clickable
       class="product-item"
@@ -43,26 +65,16 @@ export default defineComponent({
         />
       </q-item-section>
       <!-- 商品信息 -->
-      <q-item-section class="product-name-section">
+      <q-item-section class="product-title-section">
         <q-item-label>{{ product.goods_name }}</q-item-label>
       </q-item-section>
 
-      <q-item-section class="product-actions-section">
+      <q-item-section class="product-price-section">
         <PriceDisplay
-          class="product-price"
           :total-price="product.goods_price"
           is-unit="￥"
           size="xs"
           style="color: red"
-        />
-        <!-- 加入购物车按钮 -->
-        <q-btn
-          v-if="false"
-          class="add-to-cart-btn"
-          flat
-          color="primary"
-          icon="add_shopping_cart"
-          @click.stop="addCart(product)"
         />
       </q-item-section>
     </q-item>
@@ -74,6 +86,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 200px;
 }
 
 .product-image-section {
@@ -84,23 +97,22 @@ export default defineComponent({
 }
 
 .product-image {
+  width: 100px;
+  height: 100px;
+  margin: 2px;
   object-fit: cover;
   border-radius: 8px;
+  background-color: #d6d6d6b2;
 }
 
-.product-name-section {
-  text-align: center;
+.product-title-section {
   font-weight: bold;
 }
 
-.product-actions-section {
+.product-price-section {
   display: flex;
   align-items: center;
   width: 100%;
-}
-
-.product-price {
-  color: #409eff;
 }
 
 .add-to-cart-btn {
