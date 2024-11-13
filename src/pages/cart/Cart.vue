@@ -151,8 +151,11 @@ const remove = async () => {
   await removes(items).then((res) => {
     if (res.code === 0) {
       cancelRef.value?.close();
+      // 保存
       const data = list.filter((item) => !ids.includes(item.id));
+      // 清空
       list.length = 0;
+      // 重新赋值
       list.push(...data);
     }
   });
@@ -171,7 +174,7 @@ const create = async () => {
     }
     const id = res.id;
 
-    const total = +totalPrice.value.toFixed(2);
+    const total = totalPrice.value.toFixed(2);
 
     const data = list
       .filter((item) => item.selected)
@@ -180,7 +183,7 @@ const create = async () => {
         goods_price: item.product.goods_price,
         quantity: item.number,
         addressId: id as number,
-        total: total,
+        total: +total,
       }));
 
     if (data?.length === 0) return notifyUser('您还没选择商品', 'red');
@@ -197,6 +200,7 @@ const create = async () => {
     throw error;
   }
 };
+
 const goPay = () => {
   router.push({ path: '/' });
 };

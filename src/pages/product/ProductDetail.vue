@@ -108,6 +108,7 @@ function goBack() {
  */
 const addCart = async () => {
   try {
+    // 是否登录
     let userString = localStorage.getItem('user');
     let isLogin: boolean = false;
     if (userString) {
@@ -132,8 +133,10 @@ const addCart = async () => {
   }
 };
 
+// 创建订单
 const create = async () => {
   try {
+    // 是否登录
     let userString = localStorage.getItem('user');
     let isLogin: boolean = false;
     if (userString) {
