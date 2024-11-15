@@ -189,7 +189,6 @@ const create = throttle(async () => {
 
 .nav-bar {
   background-color: #409eff;
-  border-radius: 10px;
 }
 
 .product-detail-page {
