@@ -2,7 +2,7 @@
   <q-page>
     <list-box class="list-box">
       <template v-slot:header>
-        <q-toolbar class="bg-secondary rounded-borders">
+        <q-toolbar class="bg-primary rounded-borders nav-bar">
           <q-btn
             flat
             dense
@@ -11,9 +11,10 @@
             @click="goBack"
           />
           <q-separator vertical inset />
-          <span class="q-ml-md">商品详情</span>
+          <span class="q-ml-md text-white">商品详情</span>
         </q-toolbar>
       </template>
+
       <template v-slot:content>
         <div class="product-detail-page">
           <!-- 商品图片 -->
@@ -22,20 +23,20 @@
               :src="product?.goods_img"
               :alt="product?.goods_name"
               class="product-image"
+              :ratio="1 / 1"
             />
           </div>
 
           <!-- 商品信息 -->
           <div class="product-info">
             <!-- 商品名称 -->
-            <!-- <h1 class="product-name">{{ product?.goods_name }}</h1> -->
-            <p class="text-h6">{{ product?.goods_name }}</p>
+            <p class="product-name text-h5">{{ product?.goods_name }}</p>
             <!-- 商品价格 -->
-            <p class="product-price">￥{{ product?.goods_price }}</p>
+            <p class="product-price text-h6">￥{{ product?.goods_price }}</p>
 
             <!-- 商品描述 -->
             <div class="product-description">
-              <p><span>库存：</span>{{ product?.goods_num }}</p>
+              <p><strong>库存：</strong>{{ product?.goods_num }}</p>
             </div>
 
             <!-- 操作按钮 -->
@@ -70,12 +71,13 @@ import { IProduct, Product } from 'src/types/product';
 import ListBox from 'src/components/ListBox.vue';
 import { useRoute } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, throttle } from 'quasar';
 import { createCart } from 'src/api/cart';
 import { createOrder } from 'src/api/order';
 import { queryAddress } from 'src/api/address';
 import { IAddress } from 'src/types/address';
 import { IOrder } from 'src/types/order';
+
 const route = useRoute();
 const product = ref<IProduct>();
 const router = useRouter();
@@ -106,7 +108,7 @@ function goBack() {
  * 将商品添加到购物车
  * @param product 要添加的商品
  */
-const addCart = async () => {
+const addCart = throttle(async () => {
   try {
     // 是否登录
     let userString = localStorage.getItem('user');
@@ -115,7 +117,6 @@ const addCart = async () => {
       const user = JSON.parse(userString);
       isLogin = user.isLogin;
     }
-
     if (!isLogin) {
       return notifyUser('登录后再进行操作', 'green');
     }
@@ -129,12 +130,14 @@ const addCart = async () => {
       notifyUser(res.message, 'red');
     }
   } catch (error) {
-    notifyUser('出现错误!请联系管理员', 'red-4');
+    notifyUser('先登录再进行操作', 'red-4');
   }
-};
+}, 1000);
 
-// 创建订单
-const create = async () => {
+/**
+ * 创建订单
+ */
+const create = throttle(async () => {
   try {
     // 是否登录
     let userString = localStorage.getItem('user');
@@ -176,27 +179,37 @@ const create = async () => {
     notifyUser('订单创建失败', 'red-5');
     throw error;
   }
-};
+}, 1000);
 </script>
 
 <style scoped>
 .list-box {
   margin: 0 auto;
 }
-.back-btn {
-  margin-bottom: 16px;
+
+.nav-bar {
+  background-color: #409eff;
+  border-radius: 10px;
+}
+
+.product-detail-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .product-image-container {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .product-image {
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 350px;
+  max-height: 350px;
   object-fit: cover;
   border-radius: 8px;
-  margin-bottom: 24px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
 .product-info {
@@ -204,30 +217,68 @@ const create = async () => {
 }
 
 .product-name {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: bold;
-  margin: 0;
+  color: #333;
+  margin-bottom: 8px;
 }
 
 .product-price {
-  font-size: 20px;
-  color: #409eff;
-  margin: 16px 0;
+  font-size: 24px;
+  color: #e60012;
+  margin-bottom: 16px;
 }
 
 .product-description {
+  font-size: 16px;
+  color: #666;
   margin-bottom: 24px;
-  color: #606266;
 }
 
 .product-actions {
   display: flex;
-  gap: 16px;
   justify-content: center;
+  gap: 20px;
 }
 
 .add-to-cart-btn,
 .buy-now-btn {
   padding: 12px 24px;
+  /* font-size: 16px; */
+  border-radius: 8px;
+}
+
+.add-to-cart-btn {
+  background-color: #409eff;
+  color: white;
+}
+
+.buy-now-btn {
+  background-color: #ff5722;
+  color: white;
+}
+
+.add-to-cart-btn:hover {
+  background-color: #007bff;
+}
+
+.buy-now-btn:hover {
+  background-color: #f44336;
+}
+
+/* 移动设备优化 */
+@media screen and (max-width: 768px) {
+  .product-image {
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  .product-name {
+    font-size: 22px;
+  }
+
+  .product-price {
+    font-size: 20px;
+  }
 }
 </style>

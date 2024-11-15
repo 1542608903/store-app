@@ -22,10 +22,9 @@ export async function checkeAllCart(
 }
 
 export async function updateOneChecke(
-  id: number,
-  selected: boolean
+  ids: number[],
 ): Promise<AxiosResponse<Array<number>>> {
-  return api.patch(`/cart/check/${id}`, { selected });
+  return api.patch('cart/check', { ids });
 }
 
 export async function updateOneNumber(

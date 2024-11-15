@@ -1,12 +1,12 @@
 import { boot } from 'quasar/wrappers';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
 import { getToken } from 'src/utils/saveToken';
-import type { ErrorResponse } from 'src/types';
+
 
 declare module 'vue' {
   interface ComponentCustomProperties {
     $axios: AxiosInstance;
-    // $api: AxiosInstance;
+    $api: AxiosInstance;
   }
 }
 
@@ -20,22 +20,7 @@ api.interceptors.response.use(
     const data = response.data;
     return data;
   },
-  function (error) {
-    const data: ErrorResponse = error.response?.data || {
-      code: 'UNKNOWN',
-      message: '网络错误',
-    };
-
-    switch (data.code) {
-      case '10101':
-        localStorage.clear();
-        window.location.href = '/';
-        break;
-      case '10102':
-        localStorage.clear();
-        window.location.href = '/';
-        break;
-    }
+  function (error: AxiosError) {
     return Promise.reject(error);
   }
 );
@@ -47,7 +32,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = token;
     }
-
     return config;
   },
   function (error) {

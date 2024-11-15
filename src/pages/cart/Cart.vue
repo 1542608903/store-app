@@ -1,5 +1,5 @@
 <script setup lang="ts" name="Cart">
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useAddressStore } from 'src/stores/address-store';
 import {
   updateOneNumber,
@@ -8,7 +8,7 @@ import {
   getCartList,
   removes,
 } from 'src/api/cart';
-import { useQuasar, debounce } from 'quasar';
+import { useQuasar, debounce, throttle } from 'quasar';
 import { ICartItem } from 'src/types/cart';
 import type { Product } from 'src/types/product';
 import { useRouter } from 'vue-router';
@@ -18,33 +18,33 @@ import { Dialog } from 'src/types/index';
 
 // 组件
 import ListBox from 'src/components/ListBox.vue';
-import CartItem from 'components/cart/CartItem.vue';
+// import CartItem from 'components/cart/CartItem.vue';
+import ShoppingCartItem from 'components/cart/ShoppingCartItem.vue';
 import NoData from 'src/components/NoData.vue';
 import MyDialog from 'src/components/MyDialog.vue';
 import PriceDisplay from 'src/components/PriceDisplay.vue';
 
-const addressStore = useAddressStore();
 const $q = useQuasar();
+const router = useRouter();
+const addressStore = useAddressStore();
 const cancelRef = ref<Dialog | null>(null);
 const payRef = ref<Dialog | null>(null);
-const router = useRouter();
-const list = reactive<ICartItem[]>([]);
-const checked = ref<boolean>(false);
-const arr = ref<Array<number>>([]);
-const arrs = reactive<Array<number>>([]);
-const totalPrice = ref(0);
-const sum = ref(0);
+const list = reactive<ICartItem[]>([]); // 购物车列表
+const checked = ref<boolean>(false); // 是否全选
+const pageNum = 1; //当前页
+const pageSize = 999; // 每页条数
+const visible = ref(false);
 
 onMounted(async () => {
-  const pageNum = 1;
-  const pageSize = 999;
   const res = await getCartList(pageNum, pageSize);
-  const data = res.result.list as [];
+  const data = res.result.list as ICartItem[];
+  list.push(...data);
 
-  for (let i = 0; i < data.length; i++) {
-    list.push(data[i]);
+  if (list.filter((item) => item.selected).length === list.length) {
+    checked.value = true;
+  } else {
+    checked.value = false;
   }
-  count(); // 计算
 });
 
 // 通知封装函数
@@ -63,30 +63,20 @@ const updateNumberDebounce = debounce(async (id: number, number: number) => {
       await updateOneNumber(id, number);
     }
   }
-  count();
-}, 400);
+}, 600);
 
 // 计算
-const count = () => {
-  arr.value = [];
-  arrs.length = 0;
-  var s = 0;
-  for (let i = 0; i < list.length; i++) {
-    let price = Number(list[i].product.goods_price);
-    if (list[i].selected === true) {
-      arr.value.push(list[i].number * price);
-      arrs.push(list[i].id);
-    } else {
-      arrs.splice(list[i].id);
+const countPrice = computed(() => {
+  return list.reduce((pre, cur) => {
+    if (cur.selected) {
+      return pre + cur.number * cur.product.goods_price;
     }
-  }
-  for (let i = 0; i < arr.value.length; i++) {
-    s += arr.value[i];
-  }
-  sum.value = s;
-};
+    return pre;
+  }, 0);
+});
 
-// 多选
+/**
+  * 多选
 const radio = async (item: ICartItem, index: number) => {
   if (list[index].selected) {
     list[index].selected = false;
@@ -109,30 +99,52 @@ const radio = async (item: ICartItem, index: number) => {
       }
     }
   }
-  count();
 };
-// 全选
-const all = async (e: boolean) => {
-  if (e === null) return;
-  if (e) {
-    for (let i = 0; i < list.length; i++) {
-      // 选中
-      list[i].selected = true;
-    }
-    // 发送请求
-    await checkeAllCart(true);
+  */
+
+// 多选
+const checke = debounce(async (ids: Array<number>) => {
+  // 发送请求
+  await updateOneChecke(ids);
+
+  // 判断是否全选
+  if (ids.length === list.length) {
+    checked.value = true;
   } else {
+    checked.value = false;
+  }
+
+  list.forEach((item) => {
+    if (ids.includes(item.id)) {
+      item.selected = true;
+    } else {
+      item.selected = false;
+    }
+  });
+}, 1000);
+
+// 全选
+const all = debounce(async (e: boolean) => {
+  if (typeof e !== 'boolean') return;
+
+  if (e) {
+    // 发送请求
+    await checkeAllCart(e);
+    const ids = [];
     for (let i = 0; i < list.length; i++) {
-      // 不选中
+      list[i].selected = true;
+      ids.push(list[i].id);
+    }
+  } else {
+    await checkeAllCart(e);
+    for (let i = 0; i < list.length; i++) {
       list[i].selected = false;
     }
-    // 发送请求
-    await checkeAllCart(false);
   }
-  count();
-};
+}, 600);
+
 // 删除购物车
-const remove = async () => {
+const remove = throttle(async () => {
   // 初始化
   const ids: Array<number> = [];
 
@@ -159,9 +171,20 @@ const remove = async () => {
       list.push(...data);
     }
   });
-};
+}, 1000);
 
-const create = async () => {
+/**
+ *
+ */
+const createLoading = () => {
+  visible.value = true;
+  payRef.value?.close();
+  setTimeout(() => {
+    visible.value = false;
+    create();
+  }, 3000);
+};
+const create = throttle(async () => {
   try {
     const res = await addressStore.query();
 
@@ -174,7 +197,7 @@ const create = async () => {
     }
     const id = res.id;
 
-    const total = totalPrice.value.toFixed(2);
+    const total = countPrice.value;
 
     const data = list
       .filter((item) => item.selected)
@@ -192,14 +215,14 @@ const create = async () => {
       const order = res.result as IOrder;
       if (res.code === 0) {
         remove(); // 删除购物车
-        router.push({ path: `/order-detail/${order.id}` }); // 创建订单成功后跳转
+        router.push({ path: `/order-detail/${order.id}` }); // 跳转订单详情
       }
     });
   } catch (error) {
     notifyUser('支付失败', 'red-5');
     throw error;
   }
-};
+}, 1000);
 
 const goPay = () => {
   router.push({ path: '/' });
@@ -210,13 +233,13 @@ const goPay = () => {
     <list-box class="list-box" title="购物车">
       <template v-slot:content>
         <q-scroll-area class="full-height" v-if="list.length > 0">
-          <cart-item
-            class="cart-item"
-            v-for="(cart, index) in list"
-            :key="cart.goods_id"
-            :value="cart"
+          <ShoppingCartItem
+            :shopping-list="list"
+            :selected-all="
+              list.filter((item) => item.selected).map((item) => item.id)
+            "
             @update:number="updateNumberDebounce"
-            @update:checke="radio(cart, index)"
+            @update:checke="checke"
           />
         </q-scroll-area>
         <NoData
@@ -245,7 +268,7 @@ const goPay = () => {
             <q-space />
             <q-separator vertical inset />
             <PriceDisplay
-              :total-price="sum"
+              :total-price="countPrice"
               is-unit="￥"
               class="q-mr-sm text-orange-6"
             />
@@ -262,13 +285,17 @@ const goPay = () => {
         </div>
       </template>
     </list-box>
-
+    <!-- 支付加载动画 -->
+    <q-inner-loading :showing="visible">
+      <q-spinner-ios color="primary" size="4em" />
+      <!-- <q-spinner-gears size="50px" color="primary" /> -->
+    </q-inner-loading>
     <MyDialog
       ref="cancelRef"
       title="您确认是否删除已选中的购物车"
       @submit="remove"
     />
-    <MyDialog ref="payRef" title="您确认是否购买" @submit="create" />
+    <MyDialog ref="payRef" title="您确认是否购买" @submit="createLoading" />
   </q-page>
 </template>
 

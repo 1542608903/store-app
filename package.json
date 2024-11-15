@@ -15,6 +15,7 @@
   "dependencies": {
     "@quasar/extras": "^1.16.4",
     "axios": "^1.2.1",
+    "cordova": "^12.0.0",
     "element-china-area-data": "^6.1.0",
     "pinia": "^2.0.11",
     "pinia-plugin-persistedstate": "^4.0.1",

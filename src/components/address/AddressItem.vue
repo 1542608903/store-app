@@ -28,9 +28,7 @@ const emit = defineEmits(['update:del', 'update:radio', 'update:edit']);
       <div class="address-info">
         <div class="info-row">
           <q-icon name="fa-solid fa-user" size="xs" class="info-icon" />
-          <!-- <span class="info-text">{{ props.data.consignee }}</span> -->
           <q-badge outline color="primary" :label="props.data.consignee" />
-          <!-- <span class="info-text q-ml-md">{{ props.data.phone }}</span> -->
           <q-badge class="q-ml-md" color="blue">
             {{ props.data.phone }}
           </q-badge>
@@ -44,6 +42,13 @@ const emit = defineEmits(['update:del', 'update:radio', 'update:edit']);
         </div>
         <div class="info-row">
           <q-icon name="fa-solid fa-location-dot" size="xs" class="info-icon" />
+          <!-- <q-badge
+            class="badge-address"
+            color="orange"
+            text-color="black"
+            :label="props.data.address"
+            style="font-size: 0.9rem"
+          /> -->
           <span class="info-text">{{ props.data.address }}</span>
         </div>
       </div>
@@ -96,7 +101,7 @@ const emit = defineEmits(['update:del', 'update:radio', 'update:edit']);
 }
 .info-text {
   font-size: 14px; /* 字体大小 */
-  color: #333; /* 字体颜色 */
+  color: #db5151; /* 字体颜色 */
 }
 .del-button,
 .edit-button {

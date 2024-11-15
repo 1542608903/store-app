@@ -14,7 +14,11 @@
         v-model.number="cartNumber"
         auto-save
         v-slot="scope"
-        @hide="updateNumber(cartNumber, 'update')"
+        @save="
+          (cartNumber) => {
+            updateNumber(cartNumber, 'update');
+          }
+        "
       >
         <q-input
           v-model.number="scope.value"
