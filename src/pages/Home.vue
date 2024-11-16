@@ -1,16 +1,6 @@
 <template>
   <q-page>
     <list-box class="list-box">
-      <template v-slot:header>
-        <q-select
-          dense
-          class="q-ml-xs"
-          v-model="select"
-          :options="options"
-          label="商品排序"
-          style="width: 100px"
-        />
-      </template>
       <template v-slot:content>
         <q-scroll-area class="full-height">
           <q-infinite-scroll @load="onLoad" :offset="100" debounce="500">
@@ -37,16 +27,13 @@
 <script lang="ts" setup name="Home">
 import { IProduct } from 'src/types/product';
 import { getProducts } from 'src/api/product';
-import { reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { useQuasar } from 'quasar';
 import ProductItem from 'src/components/product/ProductItem.vue';
 import ListBox from 'src/components/ListBox.vue';
 
 const $q = useQuasar();
 const list = reactive<IProduct[]>([]);
-
-const options = ref(['New', 'Hot', 'Recommend']);
-const select = ref('Recommend');
 
 const notifyUser = (message: string, color: string) => {
   $q.notify({
