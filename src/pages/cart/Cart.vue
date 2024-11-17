@@ -177,6 +177,10 @@ const remove = throttle(async () => {
  *
  */
 const createLoading = () => {
+  if (list.filter((item) => item.selected).length === 0) {
+    payRef.value?.close();
+    return notifyUser('您还没选择商品', 'red');
+  }
   visible.value = true;
   payRef.value?.close();
   setTimeout(() => {

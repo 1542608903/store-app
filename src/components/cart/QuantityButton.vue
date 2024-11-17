@@ -15,8 +15,8 @@
         auto-save
         v-slot="scope"
         @save="
-          (cartNumber) => {
-            updateNumber(cartNumber, 'update');
+          (cartNumber, initialValue) => {
+            updateNumber(cartNumber, 'update', initialValue);
           }
         "
       >
@@ -67,7 +67,8 @@ export default defineComponent({
     const cartNumber = ref(props.quantity | 0);
     const updateNumber = (
       number: number,
-      type: 'increase' | 'decrease' | 'update'
+      type: 'increase' | 'decrease' | 'update',
+      initialValue?: number
     ) => {
       switch (type) {
         case 'increase':
@@ -84,9 +85,14 @@ export default defineComponent({
           break;
         default:
           if (number > props.maxQuantity) {
-            cartNumber.value = props.maxQuantity;
+            cartNumber.value = initialValue as number;
+            setTimeout(() => {
+              cartNumber.value = initialValue as number;
+            }, 400);
           } else if (number < props.minQuantity) {
-            cartNumber.value = props.minQuantity;
+            setTimeout(() => {
+              cartNumber.value = initialValue as number;
+            }, 400);
           } else {
             emit('update:number', number);
           }

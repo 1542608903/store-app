@@ -1,6 +1,9 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { getToken } from 'src/utils/saveToken';
+import { getToken, removeToken } from 'src/utils/saveToken';
+import { AxiosResponse } from 'src/types';
+import { Notify } from 'quasar';
+
 
 
 declare module 'vue' {
@@ -20,7 +23,20 @@ api.interceptors.response.use(
     const data = response.data;
     return data;
   },
-  function (error: AxiosError) {
+  function (error: AxiosError): Promise<AxiosError> {
+    const data = error.response?.data as AxiosResponse<string>;
+    console.log(data);
+    if (data.code == '10101' || data.code == '10102') {
+
+      removeToken('accessToken');
+      removeToken('refreshToken');
+      removeToken('user');
+      Notify.create({
+        message: '系统未登录',
+        position: 'top',
+        color: 'red-4',
+      })
+    }
     return Promise.reject(error);
   }
 );

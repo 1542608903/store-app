@@ -1,5 +1,5 @@
 import { IUser } from './user';
-
+import { AxiosError } from 'axios';
 export interface AxiosResponse<T> {
   code: number | string;
   message: string;
@@ -17,10 +17,9 @@ export interface Result<T> {
   url?: string | string[];
 }
 
-export type ErrorResponse = {
-  code: string;
-  message: string;
+export interface ErrorResponse extends AxiosError {
 };
+
 
 export type Notify =
   | 'top-left'

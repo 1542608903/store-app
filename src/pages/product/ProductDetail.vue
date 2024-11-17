@@ -110,17 +110,6 @@ function goBack() {
  */
 const addCart = throttle(async () => {
   try {
-    // 是否登录
-    let userString = localStorage.getItem('user');
-    let isLogin: boolean = false;
-    if (userString) {
-      const user = JSON.parse(userString);
-      isLogin = user.isLogin;
-    }
-    if (!isLogin) {
-      return notifyUser('登录后再进行操作', 'green');
-    }
-
     const id = product.value?.id as number;
     const res = await createCart(id);
     if (res.code === 0) {
@@ -130,7 +119,7 @@ const addCart = throttle(async () => {
       notifyUser(res.message, 'red');
     }
   } catch (error) {
-    notifyUser('先登录再进行操作', 'red-4');
+    // notifyUser('系统出现问题', 'red-4');
   }
 }, 1000);
 
@@ -140,16 +129,6 @@ const addCart = throttle(async () => {
 const create = throttle(async () => {
   try {
     // 是否登录
-    let userString = localStorage.getItem('user');
-    let isLogin: boolean = false;
-    if (userString) {
-      const user = JSON.parse(userString);
-      isLogin = user.isLogin;
-    }
-
-    if (!isLogin) {
-      return notifyUser('登录后再进行操作', 'green');
-    }
     const res = await queryAddress();
     const address = res.result as IAddress;
 
@@ -176,8 +155,7 @@ const create = throttle(async () => {
       }
     });
   } catch (error) {
-    notifyUser('订单创建失败', 'red-5');
-    throw error;
+    // notifyUser('系统出现问题', 'red-4');
   }
 }, 1000);
 </script>
